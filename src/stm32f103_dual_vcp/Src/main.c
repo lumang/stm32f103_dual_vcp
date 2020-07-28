@@ -68,6 +68,9 @@ DMA_HandleTypeDef hdma_usart2_tx;
 
 DMA_HandleTypeDef hdma_memtomem_dma1_channel1;
 
+volatile uint32_t u32LEDcounter;
+uint32_t u32LEDblinkEnable;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -77,7 +80,6 @@ DMA_HandleTypeDef hdma_memtomem_dma1_channel1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_RTC_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 
@@ -134,7 +136,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_RTC_Init();
   MX_USART2_UART_Init();
   MX_USB_DEVICE_Init();
   MX_USART1_UART_Init();
@@ -152,6 +153,7 @@ int main(void)
 
   __HAL_UART_DISABLE(&huart1);
   __HAL_UART_DISABLE(&huart2);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -182,9 +184,21 @@ int main(void)
         // SEGGER_RTT_printf(0, "rest: len=%d\n", tx_len);
       }
     }
+    //LED
+    if (u32LEDblinkEnable)
+    {
+      if (u32LEDcounter & 0x00000080)
+      {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET); //LED on
+      }
+      else
+      {
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); //LED off
+        u32LEDblinkEnable = 0;
+      }
+    }
   }
   /* USER CODE END 3 */
-
 }
 
 /**
@@ -245,33 +259,6 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-}
-
-/* RTC init function */
-static void MX_RTC_Init(void)
-{
-
-  /* USER CODE BEGIN RTC_Init 0 */
-
-  /* USER CODE END RTC_Init 0 */
-
-  /* USER CODE BEGIN RTC_Init 1 */
-
-  /* USER CODE END RTC_Init 1 */
-
-    /**Initialize RTC Only 
-    */
-  hrtc.Instance = RTC;
-  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-  /* USER CODE BEGIN RTC_Init 2 */
-
-  /* USER CODE END RTC_Init 2 */
-
 }
 
 /* USART1 init function */
@@ -361,15 +348,28 @@ static void MX_DMA_Init(void)
 */
 static void MX_GPIO_Init(void)
 {
-
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  
+/* USER CODE BEGIN 4 */
+  
+  GPIO_InitTypeDef GPIO_InitStruct;
+  
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); //LED off
 
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+/* USER CODE END 4 */
 }
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 5 */
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -422,7 +422,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
   HAL_UART_Receive_DMA(huart, (uint8_t *)uart_ctx->buf.data[0], DBL_BUF_TOTAL_LEN);
 }
 
-/* USER CODE END 4 */
+/* USER CODE END 5 */
 
 /**
   * @brief  This function is executed in case of error occurrence.

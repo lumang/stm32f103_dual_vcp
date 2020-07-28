@@ -92,48 +92,48 @@
 #define  USB_REQ_SET_INTERFACE                          0x0B
 #define  USB_REQ_SYNCH_FRAME                            0x0C
 
-#define  USB_DESC_TYPE_DEVICE                              1
-#define  USB_DESC_TYPE_CONFIGURATION                       2
-#define  USB_DESC_TYPE_STRING                              3
-#define  USB_DESC_TYPE_INTERFACE                           4
-#define  USB_DESC_TYPE_ENDPOINT                            5
-#define  USB_DESC_TYPE_DEVICE_QUALIFIER                    6
-#define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION           7
-#define  USB_DESC_TYPE_BOS                                 0x0F
+#define  USB_DESC_TYPE_DEVICE                           1
+#define  USB_DESC_TYPE_CONFIGURATION                    2
+#define  USB_DESC_TYPE_STRING                           3
+#define  USB_DESC_TYPE_INTERFACE                        4
+#define  USB_DESC_TYPE_ENDPOINT                         5
+#define  USB_DESC_TYPE_DEVICE_QUALIFIER                 6
+#define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION        7
+#define  USB_DESC_TYPE_BOS                              0x0F
 
-#define USB_CONFIG_REMOTE_WAKEUP                           2
-#define USB_CONFIG_SELF_POWERED                            1
+#define USB_CONFIG_REMOTE_WAKEUP                        2
+#define USB_CONFIG_SELF_POWERED                         1
 
-#define USB_FEATURE_EP_HALT                                0
-#define USB_FEATURE_REMOTE_WAKEUP                          1
-#define USB_FEATURE_TEST_MODE                              2
+#define USB_FEATURE_EP_HALT                             0
+#define USB_FEATURE_REMOTE_WAKEUP                       1
+#define USB_FEATURE_TEST_MODE                           2
 
-#define USB_DEVICE_CAPABITY_TYPE                           0x10
+#define USB_DEVICE_CAPABITY_TYPE                        0x10
 
-#define USB_HS_MAX_PACKET_SIZE                            512
-#define USB_FS_MAX_PACKET_SIZE                            64
-#define USB_MAX_EP0_SIZE                                  64
+#define USB_HS_MAX_PACKET_SIZE                          512
+#define USB_FS_MAX_PACKET_SIZE                          64
+#define USB_MAX_EP0_SIZE                                64
 
 /*  Device Status */
-#define USBD_STATE_DEFAULT                                1
-#define USBD_STATE_ADDRESSED                              2
-#define USBD_STATE_CONFIGURED                             3
-#define USBD_STATE_SUSPENDED                              4
+#define USBD_STATE_DEFAULT                              1
+#define USBD_STATE_ADDRESSED                            2
+#define USBD_STATE_CONFIGURED                           3
+#define USBD_STATE_SUSPENDED                            4
 
 
 /*  EP0 State */    
-#define USBD_EP0_IDLE                                     0
-#define USBD_EP0_SETUP                                    1
-#define USBD_EP0_DATA_IN                                  2
-#define USBD_EP0_DATA_OUT                                 3
-#define USBD_EP0_STATUS_IN                                4
-#define USBD_EP0_STATUS_OUT                               5
-#define USBD_EP0_STALL                                    6    
+#define USBD_EP0_IDLE                                   0
+#define USBD_EP0_SETUP                                  1
+#define USBD_EP0_DATA_IN                                2
+#define USBD_EP0_DATA_OUT                               3
+#define USBD_EP0_STATUS_IN                              4
+#define USBD_EP0_STATUS_OUT                             5
+#define USBD_EP0_STALL                                  6    
 
-#define USBD_EP_TYPE_CTRL                                 0
-#define USBD_EP_TYPE_ISOC                                 1
-#define USBD_EP_TYPE_BULK                                 2
-#define USBD_EP_TYPE_INTR                                 3
+#define USBD_EP_TYPE_CTRL                               0
+#define USBD_EP_TYPE_ISOC                               1
+#define USBD_EP_TYPE_BULK                               2
+#define USBD_EP_TYPE_INTR                               3
 
 
 /**

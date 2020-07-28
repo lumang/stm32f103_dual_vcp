@@ -2,15 +2,19 @@
 
 An example to show how to use dual CDC VCP USB interfaces. 
 
+RadioOperator modified:  
+- added LED (PC13) flashing when UART transfering data.  
+
 ## Hardware configuration
 
-MCU: STM32F103C6Tx(72MHz, LQFP48, 32KB Flash, 10KB RAM)
+MCU: STM32F103C6Tx(72MHz, LQFP48, 32KB Flash, 10KB RAM)  
+Hardware board: Blue Pill  
+LED: PC13, low-active  
 
 ## Software Development Environment
 
-- STM32CubeMX V4.26.1
-- STM32Cube FW_F1 V1.6.1
-- gcc-arm-none-eabi-7-2017-q4-major
+- MDK/Keil v5.xx  
+- ARMCC v6.xx -Ofast and Link-Time-Opt  
 
 ## Firmware Configureation
 
