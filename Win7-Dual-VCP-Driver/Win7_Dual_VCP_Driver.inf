@@ -3,7 +3,7 @@ Signature = "$Windows NT$"
 Class     = Ports
 ClassGUID = {4D36E978-E325-11CE-BFC1-08002BE10318}
 Provider  = %ManufacturerName%
-DriverVer=07/20/2020,1.00
+DriverVer = 2021-01-28,1.00
 
 ; ========== Manufacturer/Models sections ===========
 
@@ -13,16 +13,16 @@ DriverVer=07/20/2020,1.00
 ; List of devices supporting the Virtual COM port (with the corresponding interface ID)
 
 [Standard.NTx86]
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_00
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_01
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_02
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_00
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_01
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_02
 
 [Standard.NTamd64]
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_00
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_01
-%DeviceNameVCP% =USB_InstallVCP, USB\VID_3483&PID_0BB9&MI_02
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_00
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_01
+%DeviceNameVCP% =USB_InstallVCP, USB\VID_0483&PID_5740&MI_02
 
 ; =================== Installation ===================
 
