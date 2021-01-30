@@ -55,7 +55,7 @@
 /* USER CODE BEGIN 0 */
 #include <string.h>
 #include "usbd_cdc_if.h"
-#include "SEGGER_RTT.h"
+//#include "SEGGER_RTT.h"
 
 extern uint32_t u32LEDcounter;
 extern uint32_t u32LEDblinkEnable;
@@ -75,6 +75,35 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
+static void uart_irq_handler(uart_ctx_t *uart_ctx)
+{
+  int buf_len; 
+  
+  if (uart_ctx->buf.idx == 0)
+  {
+    buf_len = DBL_BUF_TOTAL_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
+  } else {
+    buf_len = DBL_BUF_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
+  }
+//  SEGGER_RTT_printf(0, "idle[UART1]: %d, len=%d\n", uart_ctx->buf.idx, buf_len);
+  HAL_UART_DMAStop(uart_ctx->huart);
+  if (buf_len > 0) {
+    if (buf_len == 1) {
+      uart_ctx->buf.data_rest[0] = uart_ctx->buf.data[uart_ctx->buf.idx][0];
+      uart_ctx->buf.rest_len = 1;
+    } else {
+//      memcpy(uart_ctx->buf.data_rest, uart_ctx->buf.data[uart_ctx->buf.idx], buf_len);
+      HAL_DMA_Start(ctx.memcpy_dma, (uint32_t)uart_ctx->buf.data[uart_ctx->buf.idx], (uint32_t)uart_ctx->buf.data_rest, buf_len);
+      if (HAL_DMA_PollForTransfer(ctx.memcpy_dma, HAL_DMA_FULL_TRANSFER, 2) == HAL_OK) {
+        uart_ctx->buf.rest_len = buf_len;
+      }
+    }
+  }
+  // Set index of double buffer to next.
+  uart_ctx->buf.idx = 0;
+  HAL_UART_Receive_DMA(uart_ctx->huart, (uint8_t *)uart_ctx->buf.data[0], DBL_BUF_TOTAL_LEN);
+}
+    
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -321,38 +350,15 @@ void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
   u32LEDblinkEnable = 1;
+  u32LEDcounter = 1;
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-  if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE)) {
-    uart_ctx_t * uart_ctx = &ctx.uart1;
-    int buf_len; 
-
-    __HAL_UART_CLEAR_IDLEFLAG(&huart1); //uart_ctx->huart
-
-    if (uart_ctx->buf.idx == 0) {
-      buf_len = DBL_BUF_TOTAL_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    } else {
-      buf_len = DBL_BUF_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    }
-
-//    SEGGER_RTT_printf(0, "idle[UART1]: %d, len=%d\n", uart_ctx->buf.idx, buf_len);
-    HAL_UART_DMAStop(uart_ctx->huart);
-    if (buf_len > 0) {
-      if (buf_len == 1) {
-        uart_ctx->buf.data_rest[0] = uart_ctx->buf.data[uart_ctx->buf.idx][0];
-        uart_ctx->buf.rest_len = 1;
-      } else {
-        // memcpy(uart_ctx->buf.data_rest, uart_ctx->buf.data[uart_ctx->buf.idx], buf_len);
-        HAL_DMA_Start(ctx.memcpy_dma, (uint32_t)uart_ctx->buf.data[uart_ctx->buf.idx], (uint32_t)uart_ctx->buf.data_rest, buf_len);
-        if (HAL_DMA_PollForTransfer(ctx.memcpy_dma, HAL_DMA_FULL_TRANSFER, 2) == HAL_OK) {
-          uart_ctx->buf.rest_len = buf_len;
-        }
-      }
-    }
-    // Set index of double buffer to next.
-    uart_ctx->buf.idx = 0;
-    HAL_UART_Receive_DMA(uart_ctx->huart, (uint8_t *)uart_ctx->buf.data[0], DBL_BUF_TOTAL_LEN);
+  if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE))
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart1);
+    
+    uart_irq_handler(&ctx.uart1);
   }
   /* USER CODE END USART1_IRQn 1 */
 }
@@ -363,40 +369,16 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-  // SEGGER_RTT_printf(0, "Uart2 IRQ\n");
   u32LEDblinkEnable = 1;
+  u32LEDcounter = 1;
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
-  if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE)) {
-    uart_ctx_t * uart_ctx = &ctx.uart2;
-    int buf_len; 
-
+  if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE))
+  {
     __HAL_UART_CLEAR_IDLEFLAG(&huart2);
-
-    if (uart_ctx->buf.idx == 0) {
-      buf_len = DBL_BUF_TOTAL_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    } else {
-      buf_len = DBL_BUF_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    }
-
-//    SEGGER_RTT_printf(0, "idle[UART2]: %d, len=%d\n", uart_ctx->buf.idx, buf_len);
-    HAL_UART_DMAStop(uart_ctx->huart);
-    if (buf_len > 0) {
-      if (buf_len == 1) {
-        uart_ctx->buf.data_rest[0] = uart_ctx->buf.data[uart_ctx->buf.idx][0];
-        uart_ctx->buf.rest_len = 1;
-      } else {
-        // memcpy(uart_ctx->buf.data_rest, uart_ctx->buf.data[uart_ctx->buf.idx], buf_len);
-        HAL_DMA_Start(ctx.memcpy_dma, (uint32_t)uart_ctx->buf.data[uart_ctx->buf.idx], (uint32_t)uart_ctx->buf.data_rest, buf_len);
-        if (HAL_DMA_PollForTransfer(ctx.memcpy_dma, HAL_DMA_FULL_TRANSFER, 2) == HAL_OK) {
-          uart_ctx->buf.rest_len = buf_len;
-        }
-      }
-    }
-    // Set index of double buffer to next.
-    uart_ctx->buf.idx = 0;
-    HAL_UART_Receive_DMA(uart_ctx->huart, (uint8_t *)uart_ctx->buf.data[0], DBL_BUF_TOTAL_LEN);
+    
+    uart_irq_handler(&ctx.uart2);
   }
   /* USER CODE END USART2_IRQn 1 */
 }
@@ -407,39 +389,16 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-
+  u32LEDblinkEnable = 1;
+  u32LEDcounter = 1;
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-  if(__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) {
-    uart_ctx_t * uart_ctx = &ctx.uart3;
-    int buf_len; 
-
-    __HAL_UART_CLEAR_IDLEFLAG(&huart3); //uart_ctx->huart
-
-    if (uart_ctx->buf.idx == 0) {
-      buf_len = DBL_BUF_TOTAL_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    } else {
-      buf_len = DBL_BUF_LEN - __HAL_DMA_GET_COUNTER(uart_ctx->hdma_rx); 
-    }
+  if(__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE))
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
     
-//    SEGGER_RTT_printf(0, "idle[UART3]: %d, len=%d\n", uart_ctx->buf.idx, buf_len);
-    HAL_UART_DMAStop(uart_ctx->huart);
-    if (buf_len > 0) {
-      if (buf_len == 1) {
-        uart_ctx->buf.data_rest[0] = uart_ctx->buf.data[uart_ctx->buf.idx][0];
-        uart_ctx->buf.rest_len = 1;
-      } else {
-        // memcpy(uart_ctx->buf.data_rest, uart_ctx->buf.data[uart_ctx->buf.idx], buf_len);
-        HAL_DMA_Start(ctx.memcpy_dma, (uint32_t)uart_ctx->buf.data[uart_ctx->buf.idx], (uint32_t)uart_ctx->buf.data_rest, buf_len);
-        if (HAL_DMA_PollForTransfer(ctx.memcpy_dma, HAL_DMA_FULL_TRANSFER, 2) == HAL_OK) {
-          uart_ctx->buf.rest_len = buf_len;
-        }
-      }
-    }
-    // Set index of double buffer to next.
-    uart_ctx->buf.idx = 0;
-    HAL_UART_Receive_DMA(uart_ctx->huart, (uint8_t *)uart_ctx->buf.data[0], DBL_BUF_TOTAL_LEN);
+    uart_irq_handler(&ctx.uart3);
   }
   /* USER CODE END USART3_IRQn 1 */
 }

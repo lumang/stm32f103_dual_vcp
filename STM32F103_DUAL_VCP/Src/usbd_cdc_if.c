@@ -23,7 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "main.h"
-#include "SEGGER_RTT.h"
+//#include "SEGGER_RTT.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -220,11 +220,7 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length, uint16
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
     {
-      uart_ctx_t * uart_ctx;
-      
-      if      (index <= 1) uart_ctx = &ctx.uart1;
-      else if (index == 2) uart_ctx = &ctx.uart2;
-      else                 uart_ctx = &ctx.uart3;
+      uart_ctx_t * const uart_ctx = (index < 2) ? &ctx.uart1 : &ctx.uart2;
 
       USBD_CDC_LineCodingTypeDef *line_coding = (USBD_CDC_LineCodingTypeDef *)pbuf;
       if (line_coding->bitrate == 0 || line_coding->datatype == 0) {
@@ -309,9 +305,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len, uint16_t index)
   CDC_Transmit_FS(Buf, *Len, index);
 #else
 //  SEGGER_RTT_printf(0, "[index=%d] Tx: %c\n", index, Buf[0]);
-  if      (index <= 1) HAL_UART_Transmit_DMA(ctx.uart1.huart, Buf, *Len);
-  else if (index == 2) HAL_UART_Transmit_DMA(ctx.uart2.huart, Buf, *Len);
-  else                 HAL_UART_Transmit_DMA(ctx.uart3.huart, Buf, *Len);
+  HAL_UART_Transmit_DMA((index < 2) ? ctx.uart1.huart : ctx.uart2.huart, Buf, *Len);
 #endif
   return (USBD_OK);
   /* USER CODE END 6 */

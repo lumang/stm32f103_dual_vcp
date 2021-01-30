@@ -19,13 +19,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f1xx_hal.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc_if.h"
-#include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,8 +53,8 @@ DMA_HandleTypeDef hdma_usart3_tx;
 
 DMA_HandleTypeDef hdma_memtomem_dma1_channel1;
 
-volatile uint32_t u32LEDcounter;
-uint32_t u32LEDblinkEnable;
+volatile uint32_t u32LEDcounter = 1;
+uint32_t u32LEDblinkEnable = 1;
 
 /* USER CODE BEGIN PV */
 
@@ -70,12 +68,12 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
+ctx_t ctx;
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-ctx_t ctx;
 
 /* USER CODE END 0 */
 
@@ -137,20 +135,6 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_2);
-  HAL_NVIC_SetPriority(USB_HP_CAN1_TX_IRQn  , 0, 2);
-  HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn , 0, 3);
-  HAL_NVIC_SetPriority(USART1_IRQn          , 0, 1);
-  HAL_NVIC_SetPriority(USART2_IRQn          , 0, 1);
-  HAL_NVIC_SetPriority(USART3_IRQn          , 0, 1);
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn   , 0, 2); // DMA for memory copy.
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn   , 1, 1); // UART3 Tx
-  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn   , 1, 0); // UART3 Rx
-  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn   , 1, 1); // UART1 Tx
-  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn   , 1, 0); // UART1 Rx
-  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn   , 1, 0); // UART2 Rx
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn   , 1, 1); // UART2 Tx
-
   __HAL_UART_DISABLE(&huart1);
   __HAL_UART_DISABLE(&huart2);
   __HAL_UART_DISABLE(&huart3);
@@ -189,7 +173,7 @@ int main(void)
     //LED
     if (u32LEDblinkEnable)
     {
-      if (u32LEDcounter & 0x00000080)
+      if (u32LEDcounter <= 50) //~50ms on
       {
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET); //LED on
       }
@@ -197,6 +181,14 @@ int main(void)
       {
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); //LED off
         u32LEDblinkEnable = 0;
+      }
+    }
+    else
+    {
+      if (u32LEDcounter >= 2000) //~2s blink
+      {
+        u32LEDblinkEnable = 1;
+        u32LEDcounter = 1;
       }
     }
   }
