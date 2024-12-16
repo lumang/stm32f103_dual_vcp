@@ -22,7 +22,7 @@ LED: PC13, low-active
 
 - MDK/Keil v5.xx  
 - ARMCC v6.xx -O1  
-
+- stm32CubeMX
 ## Firmware Configureation
 
 - Memory configuration:
@@ -47,8 +47,8 @@ LED: PC13, low-active
         - Class for FS IP: Communication Device Class (Virtual Port Com)
 
 - Pin configuration
-    - USB_DM: PA11
-    - USB_PM: PA12
+    - USB_DM: PA11   DM  D-
+    - USB_PM: PA12   DP  D+
     - USART1_TX: PA9
     - USART1_RX: PA10
     - USART2_TX: PA2
